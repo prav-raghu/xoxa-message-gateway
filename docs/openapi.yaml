@@ -1,0 +1,39 @@
+openapi: 3.0.0
+info:
+  title: Xoxa Message Gateway API
+  version: 1.0.0
+paths:
+  /send:
+    post:
+      summary: Send a message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendRequest'
+      responses:
+        '200':
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendResponse'
+components:
+  schemas:
+    SendRequest:
+      type: object
+      properties:
+        to:
+          type: string
+        message:
+          type: string
+        channel:
+          type: string
+    SendResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        error:
+          type: string
