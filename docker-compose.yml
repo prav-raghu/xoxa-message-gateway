@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: xoxa
+      POSTGRES_PASSWORD: xoxa
+      POSTGRES_DB: xoxa
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xoxa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  nats:
+    image: nats:2-alpine
+    ports:
+      - "4222:4222"
+
+  api:
+    build:
+      context: .
+      args:
+        CMD_PATH: ./cmd/api
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgres://xoxa:xoxa@postgres:5432/xoxa?sslmode=disable
+      NATS_URL: nats://nats:4222
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
+
+  worker:
+    build:
+      context: .
+      args:
+        CMD_PATH: ./cmd/worker
+    ports:
+      - "9091:9091"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgres://xoxa:xoxa@postgres:5432/xoxa?sslmode=disable
+      NATS_URL: nats://nats:4222
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
+
+volumes:
+  pgdata:

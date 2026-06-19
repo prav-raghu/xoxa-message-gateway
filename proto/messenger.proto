@@ -2,17 +2,25 @@ syntax = "proto3";
 
 package proto;
 
+option go_package = "xoxa-message-gateway/proto";
+
 service Messenger {
   rpc Send (SendRequest) returns (SendResponse);
+  rpc GetMessage (GetMessageRequest) returns (SendResponse);
 }
 
 message SendRequest {
-  string to = 1;
-  string message = 2;
-  string channel = 3;
+  string channel = 1;
+  string to = 2;
+  string text = 3;
+}
+
+message GetMessageRequest {
+  string id = 1;
 }
 
 message SendResponse {
-  string status = 1;
-  string error = 2;
+  string id = 1;
+  string status = 2;
+  string error = 3;
 }
